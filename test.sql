@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 04, 2018 at 02:50 PM
+-- Generation Time: Jul 26, 2018 at 03:39 AM
 -- Server version: 10.1.26-MariaDB
 -- PHP Version: 7.0.23
 
@@ -33,14 +33,6 @@ CREATE TABLE `projects` (
   `projectName` varchar(30) DEFAULT NULL,
   `userID` char(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `projects`
---
-
-INSERT INTO `projects` (`projectID`, `projectName`, `userID`) VALUES
-('97521240247369730', 'project 12', '97521240247369728'),
-('97521240247369731', 'project 1', '97521240247369728');
 
 -- --------------------------------------------------------
 
@@ -76,18 +68,20 @@ CREATE TABLE `todos` (
   `status` set('ONGOING','OVERDUE','ABORTED','') NOT NULL,
   `dependeeTodoID` char(32) DEFAULT NULL,
   `projectID` char(32) NOT NULL,
-  `tagID` char(32) DEFAULT NULL,
   `userID` char(32) NOT NULL,
   `deleted` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `todos`
+-- Table structure for table `todos-tags`
 --
 
-INSERT INTO `todos` (`todoID`, `title`, `description`, `startDate`, `endDate`, `status`, `dependeeTodoID`, `projectID`, `tagID`, `userID`, `deleted`) VALUES
-('97521240247369735', 'title', 'description test', '2018-02-08 00:00:00', '2018-02-21 06:00:00', 'ONGOING', NULL, '97521240247369730', '97521240247369732', '97521240247369728', 1),
-('97521240247369736', 'dtitle', 'description test', '2018-02-08 00:00:00', '2018-02-21 06:00:00', 'ONGOING', NULL, '97521240247369730', '97521240247369732', '97521240247369728', 1);
+CREATE TABLE `todos-tags` (
+  `TodoID` char(32) NOT NULL,
+  `TagID` char(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -96,10 +90,10 @@ INSERT INTO `todos` (`todoID`, `title`, `description`, `startDate`, `endDate`, `
 --
 
 CREATE TABLE `users` (
+  `UserID` char(32) NOT NULL,
   `name` varchar(30) DEFAULT NULL,
   `username` varchar(30) DEFAULT NULL,
   `password` varchar(20) DEFAULT NULL,
-  `UserID` char(32) NOT NULL,
   `status` set('active','deleted') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -107,9 +101,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`name`, `username`, `password`, `UserID`, `status`) VALUES
-('adrian', 'adrian1', '12345', '97521240247369728', 'active'),
-('adrian', 'adrian', '12345', '97521240247369729', 'active');
+INSERT INTO `users` (`UserID`, `name`, `username`, `password`, `status`) VALUES
+('97521240247369728', 'adrian', 'admin', '81NXVM2P3itj', 'deleted'),
+('97521240247369729', 'adrianuc', 'admin', '81NXVM2P3itj', 'deleted'),
+('97539708371861504', 'sdfsdfsdfsdfsdf', 'admin', '81NXVM2P3itj', 'active');
 
 --
 -- Indexes for dumped tables
@@ -134,9 +129,15 @@ ALTER TABLE `tags`
 ALTER TABLE `todos`
   ADD PRIMARY KEY (`todoID`),
   ADD KEY `constrtProjectid` (`projectID`),
-  ADD KEY `constrTagID` (`tagID`),
-  ADD KEY `constrtUserID` (`userID`),
-  ADD KEY `constrdependeeID` (`dependeeTodoID`);
+  ADD KEY `constrdependeeID` (`dependeeTodoID`),
+  ADD KEY `constrtUserID` (`userID`);
+
+--
+-- Indexes for table `todos-tags`
+--
+ALTER TABLE `todos-tags`
+  ADD KEY `todos-tags_ibfk_1` (`TagID`),
+  ADD KEY `todos-tags_ibfk_2` (`TodoID`);
 
 --
 -- Indexes for table `users`
@@ -158,10 +159,15 @@ ALTER TABLE `projects`
 -- Constraints for table `todos`
 --
 ALTER TABLE `todos`
-  ADD CONSTRAINT `constrTagID` FOREIGN KEY (`tagID`) REFERENCES `tags` (`TagID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `constrdependeeID` FOREIGN KEY (`dependeeTodoID`) REFERENCES `todos` (`todoID`),
   ADD CONSTRAINT `constrtProjectid` FOREIGN KEY (`projectID`) REFERENCES `projects` (`projectID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `constrtUserID` FOREIGN KEY (`userID`) REFERENCES `users` (`UserID`);
+  ADD CONSTRAINT `constrtUserID` FOREIGN KEY (`userID`) REFERENCES `users` (`UserID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `todos-tags`
+--
+ALTER TABLE `todos-tags`
+  ADD CONSTRAINT `todos-tags_ibfk_1` FOREIGN KEY (`TagID`) REFERENCES `tags` (`TagID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `todos-tags_ibfk_2` FOREIGN KEY (`TodoID`) REFERENCES `todos` (`todoID`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
